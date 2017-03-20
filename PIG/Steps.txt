@@ -1,0 +1,54 @@
+Calculating average fare for each class
+
+Step1:
+  Titanic_Data_All_Flume = LOAD 'hdfs://localhost:9000/flume_sink/FlumeData.1488659675522' using PigStorage(',') AS (pid:int,survived:int,pclass:int,pname:chararray,sex:chararray,age:int,sibsp:int,parch:int,tkt:chararray,fare:float,cabin:chararray,embarked:chararray);
+
+Step2:
+group_titanic_data = group Titanic_Data_All by pclass;
+
+Step3:
+avg_titanic_data = foreach group_titanic_data generate group, AVG(Titanic_Data_All.fare);
+
+Step 4:
+dump avg_titanic_data ;
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ the number of people alive in each class and are embarked in Southampton.
+
+Step1:
+  Titanic_Data_All_Flume = LOAD 'hdfs://localhost:9000/flume_sink/FlumeData.1488659675522' using PigStorage(',') AS (pid:int,survived:int,pclass:int,pname:chararray,sex:chararray,age:int,sibsp:int,parch:int,tkt:chararray,fare:float,cabin:chararray,embarked:chararray);
+
+Step2:
+filtered_titanic_data = Filter Titanic_Data_All by embarked matches 'S';
+
+Step3:
+filter_titanic_data_living = Filter filtered_titanic_data by survived==0;
+
+Step4:
+grouped_filtered_titanic_data = group filter_titanic_data_living by pclass;
+
+Step5:
+sum_living_titanic = foreach grouped_filtered_titanic_data generate group,COUNT(filter_titanic_data_living.survived);
+
+Step6:
+dump sum_living_titanic;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Number of male and female people died in each class.
+
+Step1:
+ Titanic_Data_All_Flume = LOAD 'hdfs://localhost:9000/flume_sink/FlumeData.1488659675522' using PigStorage(',') AS (pid:int,survived:int,pclass:int,pname:chararray,sex:chararray,age:int,sibsp:int,parch:int,tkt:chararray,fare:float,cabin:chararray,embarked:chararray);
+
+Step2:
+filtered_titanic_died = filter Titanic_Data_All by survived==1;
+
+Step3:
+grouped_titanic_data_gender = group filtered_titanic_died by sex;
+
+Step4:
+sum_titanic_dead = foreach grouped_titanic_data_gender generate group,COUNT(filtered_titanic_died.survived);
+
+Step 5:
+dump sum_titanic_dead;
